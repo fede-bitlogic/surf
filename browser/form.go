@@ -195,15 +195,23 @@ func serializeForm(sel *goquery.Selection) (url.Values, url.Values, FileSet) {
 	input.Each(func(_ int, s *goquery.Selection) {
 		if name, ok := s.Attr("name"); ok {
 			t, _ := s.Attr("type")
-			if t == "submit" {
+			switch t {
+			case "submit":
 				val, _ := s.Attr("value")
 				buttons.Add(name, val)
-			} else if t == "file" {
+			case "file":
 				files[name] = &File{}
-			} else {
+			case "checkbox":
+				if _, checked := s.Attr("checked"); checked {
+					val, _ := s.Attr("value")
+					fields.Add(name, val)
+				}
+			default:
 				elementName := s.First().Nodes[0].Data
 				switch elementName {
+
 				case "input", "textarea":
+
 					val, _ := s.Attr("value")
 					fields.Add(name, val)
 				case "select":
